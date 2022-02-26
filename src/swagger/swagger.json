@@ -1,0 +1,121 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Payment Services API",
+    "version": "1.0.0",
+    "description": "API to query typeable lines of bank slip and payment of concessionaires",
+    "contact": {
+      "email": "ssguicesar@gmail.com"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "servers": [
+    {
+      "description": "Localhost",
+      "url": "/"
+    },
+    {
+      "description": "Enviroment",
+      "url": "https://"
+    }
+  ],
+  "paths": {
+    "/v1": {
+      "get": {
+        "tags": ["Status Check"],
+        "summary": "Routes",
+        "operationId": "payment_services_statuscheck",
+        "responses": {
+          "200": {
+            "description": "JSON object return",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/success_healthcheck"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "Auth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "k360_auth"
+      }
+    },
+    "schemas": {
+      "success_healthcheck": {
+        "properties": {
+          "endpoints": {
+            "type": "string",
+            "example": "/v1"
+          },
+          "status": {
+            "type": "string",
+            "example": "Ok"
+          }
+        }
+      },
+      "base_error": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Descriptive error message",
+            "example": "Error example"
+          },
+          "statusCode": {
+            "description": "HTTP status related to a request",
+            "type": "number",
+            "example": 0
+          },
+          "error": {
+            "description": "Type of error returned",
+            "type": "string",
+            "example": "Error"
+          },
+          "details": {
+            "type": "object",
+            "default": {},
+            "description": "Used to return errors already mapped from certain APIs"
+          },
+          "stack": {
+            "type": "object",
+            "example": "Error: an error was encountered",
+            "description": "Errors StackTrace. *This property will only exist in the development environment*\n"
+          }
+        }
+      },
+      "internal_server_error": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/base_error"
+          },
+          {
+            "type": "object",
+            "description": "Used to send API internal errors that were not previously identified",
+            "properties": {
+              "error": {
+                "example": "InternalServerError"
+              },
+              "message": {
+                "example": "O endpoint localhost."
+              },
+              "statusCode": {
+                "example": 500
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
