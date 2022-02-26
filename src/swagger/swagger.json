@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "Payment Services API",
+    "title": "Payments Service API",
     "version": "1.0.0",
     "description": "API to query typeable lines of bank slip and payment of concessionaires",
     "contact": {
@@ -27,7 +27,7 @@
       "get": {
         "tags": ["Status Check"],
         "summary": "Routes",
-        "operationId": "payment_services_statuscheck",
+        "operationId": "payments_service_statuscheck",
         "responses": {
           "200": {
             "description": "JSON object return",
