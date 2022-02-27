@@ -1,3 +1,4 @@
+import BadRequestError from '../errors/bad-request';
 class typeableLineDomain {
   getBankSlipData(typeableLine) {
     const recipientFinancialInstitutionCode = typeableLine.slice(0, 3).join('');
@@ -41,24 +42,45 @@ class typeableLineDomain {
     let control = true;
     const multiplierNumber_1 = 1;
     const multiplierNumber_2 = 2;
-    const multipliedNumbers = barCodeBlocks.map(block => {
-      return block
-        .split('')
-        .reverse()
-        .map(number => {
-          if (control) {
-            control = false;
-            return this.multipliedNumbers(number, multiplierNumber_2);
-          } else {
-            control = true;
-            return this.multipliedNumbers(number, multiplierNumber_1);
-          }
-        })
-        .reverse();
+    return barCodeBlocks.map(block => {
+      return block.split('').map(number => {
+        if (control) {
+          control = false;
+          return this.multipliedNumbers(number, multiplierNumber_2);
+        } else {
+          control = true;
+          return this.multipliedNumbers(number, multiplierNumber_1);
+        }
+      });
     });
   }
 
-  getBarCodeDigits(bankSlipData) {
+  getBarcodeCheckDigits(multipliedNumbers) {
+    const arrOfValues = multipliedNumbers.map(block => {
+      const sum = block.reduce(
+        (accumulator, currentValue) => accumulator + currentValue,
+      );
+      return sum / 10;
+    });
+
+    return arrOfValues.map(value => {
+      const floatingRemainderOfDivision = parseInt(
+        value.toString().split('.')[1],
+        10,
+      );
+      const immediatelyAfterTen = Math.round(value) * 10;
+
+      const remainderOfSubtraction =
+        immediatelyAfterTen - floatingRemainderOfDivision / 10;
+      const result = parseInt(
+        remainderOfSubtraction.toString().split('.')[1],
+        10,
+      );
+      return result;
+    });
+  }
+
+  validateTypeAbleLineDigits(bankSlipData) {
     const {
       recipientFinancialInstitutionCode,
       currencyCode,
@@ -68,9 +90,6 @@ class typeableLineDomain {
       digitCheckerField_2,
       thirdBlockOfBarcode,
       digitCheckerField_3,
-      barcodeCheckeDigit,
-      expirationFactor,
-      paymentSlipValue,
     } = bankSlipData;
 
     const firstFieldOfTypeableLine = [
@@ -80,21 +99,47 @@ class typeableLineDomain {
     ].join('');
 
     const multipliedNumbers = this.getMultipliedNumbers([
-      thirdBlockOfBarcode,
-      secondBlockOfBarcode,
       firstFieldOfTypeableLine,
+      secondBlockOfBarcode,
+      thirdBlockOfBarcode,
     ]);
+
+    const checkDigits = this.getBarcodeCheckDigits(multipliedNumbers);
+
+    const digitCheckerField_1_2_3 = parseInt(
+      [
+        digitCheckerField_1,
+        ...digitCheckerField_2,
+        ...digitCheckerField_3,
+      ].join(''),
+      10,
+    );
+
+    const digitsChecked = parseInt(checkDigits.join(''), 10);
+
+    return digitCheckerField_1_2_3 === digitsChecked ? true : false;
+  }
+
+  validateBarcodeDigit() {
+    return true;
   }
 
   BankSlip(typeableLine) {
     const bankSlipData = this.getBankSlipData(typeableLine);
-    const barCodeDigits = this.getBarCodeDigits(bankSlipData);
+    if (
+      this.validateTypeAbleLineDigits(bankSlipData) &&
+      this.validateBarcodeDigit(bankSlipData)
+    ) {
+      return {
+        barCode: 0,
+        amount: '00.00',
+        expirationDate: '0001-01-01',
+      };
+    }
 
-    return {
-      barCode: 0,
-      amount: '00.00',
-      expirationDate: '0001-01-01',
-    };
+    throw new BadRequestError(
+      'Invalid line value entered, check digits do not match',
+    );
   }
 }
 
