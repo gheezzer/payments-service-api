@@ -1,4 +1,5 @@
-import NotImplementedError from './not-implemented';
 import InternalServerError from './internal-error';
+import NotImplementedError from './not-implemented';
+import BadRequestError from './bad-request';
 
-export { NotImplementedError, InternalServerError };
+export { InternalServerError, NotImplementedError, BadRequestError };
