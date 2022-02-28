@@ -1,8 +1,8 @@
 import cors from 'cors';
 import express from 'express';
 import swaggerRoute from './routes/swagger';
-import { NotImplementedError } from './errors';
 import errorMiddleware from './middlewares/errors';
+
 export default class Server {
   constructor(routes) {
     this.routes = routes;
@@ -18,24 +18,15 @@ export default class Server {
   initializeRoutes() {
     this.express.use(swaggerRoute);
     this.routes.forEach(route => {
-      const { hooks, path, handler } = { ...route };
-      const { onRequest, validator, onResponse } = hooks || {};
+      const { path, handler } = { ...route };
       const routeExpress = this.getExpressRouteByMethod(route);
-      const validators = validator || [];
-
-      if (onRequest) {
-        validators.unshift(...onRequest);
-      }
-
-      const args = [validators, handler, onResponse];
-      routeExpress.bind(this.express)(path, ...args.filter(hook => !!hook));
+      const args = [handler];
+      routeExpress.bind(this.express)(path, ...args);
     });
   }
 
   initializeMiddlewares() {
     this.express.use(cors());
-    this.express.use(express.json());
-    this.express.use(express.urlencoded({ extended: true }));
   }
 
   getExpressRouteByMethod({ method }) {
@@ -44,10 +35,6 @@ export default class Server {
     };
 
     const routeExpress = availableMethods[method];
-
-    if (!routeExpress) {
-      throw new NotImplementedError(`Method [${method}] not implemented.`);
-    }
 
     return routeExpress;
   }

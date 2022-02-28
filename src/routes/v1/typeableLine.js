@@ -6,6 +6,6 @@ export default [
   {
     method: 'GET',
     path: '/boleto/:digits',
-    handler: typeableLineController.getBankSlipDataAndPaymentOfConcessionaires,
+    handler: typeableLineController.getBankSlipData,
   },
 ];

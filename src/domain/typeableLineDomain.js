@@ -1,14 +1,15 @@
 import BadRequestError from '../errors/bad-request';
-class typeableLineDomain {
+
+class TypeableLineDomain {
   getBankSlipData(typeableLine) {
     const recipientFinancialInstitutionCode = typeableLine.slice(0, 3).join('');
     const currencyCode = typeableLine.slice(3, 4).join('');
     const firstBlockOfBarcode = typeableLine.slice(4, 9).join('');
-    const digitCheckerField_1 = typeableLine.slice(9, 10).join('');
+    const digitCheckerFieldOne = typeableLine.slice(9, 10).join('');
     const secondBlockOfBarcode = typeableLine.slice(10, 20).join('');
-    const digitCheckerField_2 = typeableLine.slice(20, 21).join('');
+    const digitCheckerFieldTwo = typeableLine.slice(20, 21).join('');
     const thirdBlockOfBarcode = typeableLine.slice(21, 31).join('');
-    const digitCheckerField_3 = typeableLine.slice(31, 32).join('');
+    const digitCheckerFieldThree = typeableLine.slice(31, 32).join('');
     const barcodeCheckeDigit = typeableLine.slice(32, 33).join('');
     const expirationFactor = typeableLine.slice(33, 37).join('');
     const paymentSlipValue = typeableLine.slice(37).join('');
@@ -17,11 +18,11 @@ class typeableLineDomain {
       recipientFinancialInstitutionCode,
       currencyCode,
       firstBlockOfBarcode,
-      digitCheckerField_1,
+      digitCheckerFieldOne,
       secondBlockOfBarcode,
-      digitCheckerField_2,
+      digitCheckerFieldTwo,
       thirdBlockOfBarcode,
-      digitCheckerField_3,
+      digitCheckerFieldThree,
       barcodeCheckeDigit,
       expirationFactor,
       paymentSlipValue,
@@ -40,17 +41,16 @@ class typeableLineDomain {
 
   getMultipliedNumbers(barCodeBlocks) {
     let control = true;
-    const multiplierNumber_1 = 1;
-    const multiplierNumber_2 = 2;
+    const multiplierNumberOne = 1;
+    const multiplierNumberTwo = 2;
     return barCodeBlocks.map(block => {
       return block.split('').map(number => {
         if (control) {
           control = false;
-          return this.multipliedNumbers(number, multiplierNumber_2);
-        } else {
-          control = true;
-          return this.multipliedNumbers(number, multiplierNumber_1);
+          return this.multipliedNumbers(number, multiplierNumberTwo);
         }
+        control = true;
+        return this.multipliedNumbers(number, multiplierNumberOne);
       });
     });
   }
@@ -84,11 +84,11 @@ class typeableLineDomain {
     recipientFinancialInstitutionCode,
     currencyCode,
     firstBlockOfBarcode,
-    digitCheckerField_1,
+    digitCheckerFieldOne,
     secondBlockOfBarcode,
-    digitCheckerField_2,
+    digitCheckerFieldTwo,
     thirdBlockOfBarcode,
-    digitCheckerField_3,
+    digitCheckerFieldThree,
   }) {
     const firstFieldOfTypeableLine = [
       recipientFinancialInstitutionCode,
@@ -104,18 +104,18 @@ class typeableLineDomain {
 
     const checkDigits = this.getBarcodeCheckDigits(multipliedNumbers);
 
-    const digitCheckerField_1_2_3 = parseInt(
+    const allDigitCheckerField = parseInt(
       [
-        digitCheckerField_1,
-        ...digitCheckerField_2,
-        ...digitCheckerField_3,
+        digitCheckerFieldOne,
+        ...digitCheckerFieldTwo,
+        ...digitCheckerFieldThree,
       ].join(''),
       10,
     );
 
     const digitsChecked = parseInt(checkDigits.join(''), 10);
 
-    return digitCheckerField_1_2_3 === digitsChecked ? true : false;
+    return allDigitCheckerField === digitsChecked;
   }
 
   validateBarcodeDigit({
@@ -157,7 +157,7 @@ class typeableLineDomain {
       .toString()
       .split('.')[1];
     const calculationRoundedUpAfterPoint =
-      parseInt(remainingValueWithCalculation) + 1;
+      parseInt(remainingValueWithCalculation, 10) + 1;
 
     let verifyingDigit =
       numberReferenceForCalculation - calculationRoundedUpAfterPoint;
@@ -167,7 +167,7 @@ class typeableLineDomain {
     if (exceptions.includes(verifyingDigit)) {
       verifyingDigit = 1;
     }
-    return parseInt(barcodeCheckeDigit, 10) === verifyingDigit ? true : false;
+    return parseInt(barcodeCheckeDigit, 10) === verifyingDigit;
   }
 
   getExpiryData({ expirationFactor }) {
@@ -223,4 +223,4 @@ class typeableLineDomain {
   }
 }
 
-export default new typeableLineDomain();
+export default new TypeableLineDomain();

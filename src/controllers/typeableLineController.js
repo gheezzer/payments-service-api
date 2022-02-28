@@ -2,7 +2,7 @@ import BadRequestError from '../errors/bad-request';
 import typeableLineDomain from '../domain/typeableLineDomain';
 
 export default class TypeableLineController {
-  async getBankSlipDataAndPaymentOfConcessionaires(req, res, next) {
+  async getBankSlipData(req, res, next) {
     try {
       const numberOfBankSlipDigits = 47;
       const { digits } = req.params;
@@ -16,6 +16,7 @@ export default class TypeableLineController {
       ) {
         const slipData = typeableLineDomain.BankSlip(arrayOfTypeableLineDigits);
         res.send(slipData);
+        next();
       } else {
         throw new BadRequestError(
           'Invalid line value entered, only numbers are accepted',

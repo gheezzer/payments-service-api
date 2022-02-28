@@ -5,7 +5,9 @@
   "main": "src/index.js",
   "scripts": {
     "start": "nodemon --exec babel-node src/index.js",
-    "test": "",
+    "test": "jest --no-cache --silent --watch __tests__/ --verbose --coverage --runInBand --detectOpenHandles",
+    "test-pipeline": "jest --silent --no-cache __tests__ --verbose --runInBand --detectOpenHandles --forceExit",
+    "test-report": "npm run test --config='{ \"coverageReporters\": [\"html\"], \"collectCoverage\": true }' -- --watch=false",
     "prepare": "husky install"
   },
   "repository": {
@@ -37,8 +39,30 @@
     "eslint-plugin-prettier": "^4.0.0",
     "husky": "^7.0.4",
     "jest": "^27.5.1",
+    "lint-staged": "^12.3.4",
     "nodemon": "^2.0.15",
     "prettier": "^2.5.1",
     "supertest": "^6.2.2"
+  },
+  "lint-staged": {
+    "src/**/*.js": [
+      "npx pretty-quick --staged",
+      "npx eslint --fix src --ext .js"
+    ]
+  },
+  "jest": {
+    "testRegex": "/*.test.js$",
+    "testEnvironment": "node",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/"
+    ],
+    "testPathIgnorePatterns": [
+      "<rootDir>/__tests__/setup.js"
+    ],
+    "verbose": true,
+    "setupFiles": [
+      "./__tests__/setup.js"
+    ],
+    "testTimeout": 30000
   }
 }
