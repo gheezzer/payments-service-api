@@ -3,21 +3,18 @@
     "node": true,
     "es2022": true
   },
-  "extends": [
-    "airbnb-base",
-    "plugin:prettier/recommended"
-  ],
-  "plugins": [
-    "prettier",
-    "editorconfig",
-    "jest"
-  ],
-  "globals": {
-  },
+  "extends": ["airbnb-base", "plugin:prettier/recommended"],
+  "plugins": ["prettier", "editorconfig", "jest"],
+  "globals": {},
   "parserOptions": {
     "ecmaVersion": 2022,
     "sourceType": "module"
   },
   "rules": {
-  
+    "class-methods-use-this": "off",
+    "import/prefer-default-export": "off",
+    "no-console": "off",
+    "import/extensions": "off",
+    "no-plusplus": "off"
+  }
 }
