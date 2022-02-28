@@ -22,6 +22,16 @@
       "url": "https://"
     }
   ],
+  "tags": [
+    {
+      "name": "Status Check",
+      "description": "Status Check"
+    },
+    {
+      "name": "Typeable Line",
+      "description": "Payments service API"
+    }
+  ],
   "paths": {
     "/v1": {
       "get": {
@@ -41,16 +51,40 @@
           }
         }
       }
+    },
+    "/v1/boleto/{digits}": {
+      "get": {
+        "tags": ["Typeable Line"],
+        "summary": "Routes",
+        "operationId": "payments_service_statuscheck",
+        "parameters": [
+          {
+            "name": "digits",
+            "in": "path",
+            "description": "Typeable Line",
+            "required": true,
+            "example": "00190500954014481606906809350314337370000000100",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "JSON object return",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/typeable_line"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
-    "securitySchemes": {
-      "Auth": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "k360_auth"
-      }
-    },
     "schemas": {
       "success_healthcheck": {
         "properties": {
@@ -61,6 +95,22 @@
           "status": {
             "type": "string",
             "example": "Ok"
+          }
+        }
+      },
+      "typeable_line": {
+        "properties": {
+          "barCode": {
+            "type": "string",
+            "example": "00193373700000001000500940144816060680935031"
+          },
+          "amount": {
+            "type": "string",
+            "example": "10,000"
+          },
+          "expirationDate": {
+            "type": "string",
+            "example": "31/12/2007"
           }
         }
       },

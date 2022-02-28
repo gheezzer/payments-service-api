@@ -80,18 +80,16 @@ class typeableLineDomain {
     });
   }
 
-  validateTypeAbleLineDigits(bankSlipData) {
-    const {
-      recipientFinancialInstitutionCode,
-      currencyCode,
-      firstBlockOfBarcode,
-      digitCheckerField_1,
-      secondBlockOfBarcode,
-      digitCheckerField_2,
-      thirdBlockOfBarcode,
-      digitCheckerField_3,
-    } = bankSlipData;
-
+  validateTypeAbleLineDigits({
+    recipientFinancialInstitutionCode,
+    currencyCode,
+    firstBlockOfBarcode,
+    digitCheckerField_1,
+    secondBlockOfBarcode,
+    digitCheckerField_2,
+    thirdBlockOfBarcode,
+    digitCheckerField_3,
+  }) {
     const firstFieldOfTypeableLine = [
       recipientFinancialInstitutionCode,
       ...currencyCode,
@@ -120,18 +118,16 @@ class typeableLineDomain {
     return digitCheckerField_1_2_3 === digitsChecked ? true : false;
   }
 
-  validateBarcodeDigit(bankSlipData) {
-    const {
-      recipientFinancialInstitutionCode,
-      currencyCode,
-      expirationFactor,
-      paymentSlipValue,
-      firstBlockOfBarcode,
-      secondBlockOfBarcode,
-      thirdBlockOfBarcode,
-      barcodeCheckeDigit,
-    } = bankSlipData;
-
+  validateBarcodeDigit({
+    recipientFinancialInstitutionCode,
+    currencyCode,
+    expirationFactor,
+    paymentSlipValue,
+    firstBlockOfBarcode,
+    secondBlockOfBarcode,
+    thirdBlockOfBarcode,
+    barcodeCheckeDigit,
+  }) {
     const barCodeDigits = [
       recipientFinancialInstitutionCode,
       ...currencyCode,
@@ -175,8 +171,8 @@ class typeableLineDomain {
   }
 
   getExpiryData({ expirationFactor }) {
-    const dataBase = '10-07-1997';
-    const date = new Date(dataBase);
+    const { DATABASE } = process.env;
+    const date = new Date(DATABASE);
     const day = date.getDate();
     date.setDate(day + parseInt(expirationFactor, 10));
     const formattedDate = date.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
@@ -185,6 +181,7 @@ class typeableLineDomain {
 
   BankSlip(typeableLine) {
     const bankSlipData = this.getBankSlipData(typeableLine);
+
     if (
       this.validateTypeAbleLineDigits(bankSlipData) &&
       this.validateBarcodeDigit(bankSlipData)
@@ -200,6 +197,7 @@ class typeableLineDomain {
         paymentSlipValue,
       } = bankSlipData;
       const expiryData = this.getExpiryData(bankSlipData);
+
       return {
         barCode: [
           recipientFinancialInstitutionCode,
@@ -211,7 +209,10 @@ class typeableLineDomain {
           ...secondBlockOfBarcode,
           ...thirdBlockOfBarcode,
         ].join(''),
-        amount: 'paymentSlipValue',
+        amount: (paymentSlipValue * 100).toLocaleString({
+          style: 'currency',
+          currency: 'BRL',
+        }),
         expirationDate: expiryData,
       };
     }
