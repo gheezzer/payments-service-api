@@ -120,8 +120,67 @@ class typeableLineDomain {
     return digitCheckerField_1_2_3 === digitsChecked ? true : false;
   }
 
-  validateBarcodeDigit() {
-    return true;
+  validateBarcodeDigit(bankSlipData) {
+    const {
+      recipientFinancialInstitutionCode,
+      currencyCode,
+      expirationFactor,
+      paymentSlipValue,
+      firstBlockOfBarcode,
+      secondBlockOfBarcode,
+      thirdBlockOfBarcode,
+      barcodeCheckeDigit,
+    } = bankSlipData;
+
+    const barCodeDigits = [
+      recipientFinancialInstitutionCode,
+      ...currencyCode,
+      ...expirationFactor,
+      ...paymentSlipValue,
+      ...firstBlockOfBarcode,
+      ...secondBlockOfBarcode,
+      ...thirdBlockOfBarcode,
+    ].join('');
+
+    let control = 2;
+    let sumOfDigits = 0;
+    const numberReferenceForCalculation = 11;
+    for (let i = barCodeDigits.length - 1; i >= 0; i--) {
+      if (control < 9) {
+        sumOfDigits += barCodeDigits[i] * control;
+        control++;
+      } else {
+        sumOfDigits += barCodeDigits[i] * control;
+        control = 2;
+      }
+    }
+    const remainingValueWithCalculation = (
+      sumOfDigits / numberReferenceForCalculation
+    )
+      .toFixed(1)
+      .toString()
+      .split('.')[1];
+    const calculationRoundedUpAfterPoint =
+      parseInt(remainingValueWithCalculation) + 1;
+
+    let verifyingDigit =
+      numberReferenceForCalculation - calculationRoundedUpAfterPoint;
+
+    const exceptions = [0, 10, 11];
+
+    if (exceptions.includes(verifyingDigit)) {
+      verifyingDigit = 1;
+    }
+    return parseInt(barcodeCheckeDigit, 10) === verifyingDigit ? true : false;
+  }
+
+  getExpiryData({ expirationFactor }) {
+    const dataBase = '10-07-1997';
+    const date = new Date(dataBase);
+    const day = date.getDate();
+    date.setDate(day + parseInt(expirationFactor, 10));
+    const formattedDate = date.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+    return formattedDate;
   }
 
   BankSlip(typeableLine) {
@@ -130,10 +189,30 @@ class typeableLineDomain {
       this.validateTypeAbleLineDigits(bankSlipData) &&
       this.validateBarcodeDigit(bankSlipData)
     ) {
+      const {
+        recipientFinancialInstitutionCode,
+        currencyCode,
+        firstBlockOfBarcode,
+        secondBlockOfBarcode,
+        thirdBlockOfBarcode,
+        barcodeCheckeDigit,
+        expirationFactor,
+        paymentSlipValue,
+      } = bankSlipData;
+      const expiryData = this.getExpiryData(bankSlipData);
       return {
-        barCode: 0,
-        amount: '00.00',
-        expirationDate: '0001-01-01',
+        barCode: [
+          recipientFinancialInstitutionCode,
+          ...currencyCode,
+          ...barcodeCheckeDigit,
+          ...expirationFactor,
+          ...paymentSlipValue,
+          ...firstBlockOfBarcode,
+          ...secondBlockOfBarcode,
+          ...thirdBlockOfBarcode,
+        ].join(''),
+        amount: 'paymentSlipValue',
+        expirationDate: expiryData,
       };
     }
 
