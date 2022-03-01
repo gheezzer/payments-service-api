@@ -3,10 +3,10 @@ import BankSlipDomain from '../domain/bankSlipDomain';
 import DealershipDomain from '../domain/dealershipDomain';
 
 export default class TypeableLineController {
-  async getBankSlipData(req, res, next) {
+  async getBankSlipAndDealershipData(req, res, next) {
     try {
       const numberOfBankSlipDigits = 47;
-      const numberOfgetDealershipDigits = 48;
+      const numberOfDealershipDigits = 48;
       const { digits } = req.params;
       const regex = /\d/g;
       const arrayOfTypeableLineDigits = digits.match(regex);
@@ -16,11 +16,12 @@ export default class TypeableLineController {
         const slipData = BankSlipDomain.bankSlip(arrayOfTypeableLineDigits);
         res.send(slipData);
         next();
-      } else if (numberOfTypeableLineDigits <= numberOfgetDealershipDigits) {
+      } else if (numberOfTypeableLineDigits <= numberOfDealershipDigits) {
         const dealerPayment = DealershipDomain.dealership(
           arrayOfTypeableLineDigits,
         );
         res.send(dealerPayment);
+        next();
       } else {
         throw new BadRequestError(
           'Invalid line value entered, only numbers are accepted',
