@@ -5,22 +5,20 @@ import DealershipDomain from '../domain/dealershipDomain';
 export default class TypeableLineController {
   async getBankSlipAndDealershipData(req, res, next) {
     try {
-      const numberOfBankSlipDigits = 47;
-      const numberOfDealershipDigits = 48;
       const { digits } = req.params;
+      const sizeOfBankSlipDigits = 47;
+      const sizeOfDealershipDigits = 48;
       const regex = /\d/g;
-      const arrayOfTypeableLineDigits = digits.match(regex);
-      const numberOfTypeableLineDigits = arrayOfTypeableLineDigits.length;
+      const typeableLineDigits = digits.match(regex);
+      const sizeOfTypeableLineDigits = typeableLineDigits.length;
 
-      if (numberOfTypeableLineDigits === numberOfBankSlipDigits) {
-        const slipData = BankSlipDomain.bankSlip(arrayOfTypeableLineDigits);
+      if (sizeOfTypeableLineDigits === sizeOfBankSlipDigits) {
+        const slipData = BankSlipDomain.bankSlip(typeableLineDigits);
         res.send(slipData);
         next();
-      } else if (numberOfTypeableLineDigits <= numberOfDealershipDigits) {
-        const dealerPayment = DealershipDomain.dealership(
-          arrayOfTypeableLineDigits,
-        );
-        res.send(dealerPayment);
+      } else if (sizeOfTypeableLineDigits === sizeOfDealershipDigits) {
+        const dealershipData = DealershipDomain.dealership(typeableLineDigits);
+        res.send(dealershipData);
         next();
       } else {
         throw new BadRequestError(

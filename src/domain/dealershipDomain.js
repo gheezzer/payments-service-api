@@ -33,31 +33,10 @@ class DealershipDomain {
   }
 
   dealershipModule10(digits) {
-    let control = true;
-    const multiplierNumberOne = 1;
-    const multiplierNumberTwo = 2;
-    let sumOfDigits = 0;
+    const sumOfDigits = utils.getSumOfNumbersModule10(digits);
     const numberReference = 10;
     const baseDecimal = 10;
-
-    for (let i = digits.length - 1; i >= 0; i--) {
-      if (control) {
-        sumOfDigits += utils.getMultipliedNumbers(
-          digits[i],
-          multiplierNumberTwo,
-        );
-        control = false;
-      } else {
-        sumOfDigits += utils.getMultipliedNumbers(
-          digits[i],
-          multiplierNumberOne,
-        );
-        control = true;
-      }
-    }
-
     const divisionValue = sumOfDigits / numberReference;
-
     const remainderOfDivision = parseInt(
       divisionValue.toString().split('.')[1],
       baseDecimal,
@@ -70,20 +49,8 @@ class DealershipDomain {
   }
 
   dealershipModule11(digits) {
-    let control = 2;
-    let sumOfDigits = 0;
+    const sumOfDigits = utils.getSumOfNumbersModule11(digits);
     const numberReference = 11;
-
-    for (let i = digits.length - 1; i >= 0; i--) {
-      if (control < 9) {
-        sumOfDigits += digits[i] * control;
-        control++;
-      } else {
-        sumOfDigits += digits[i] * control;
-        control = 2;
-      }
-    }
-
     const remainingValue = (sumOfDigits / numberReference)
       .toFixed(1)
       .toString()
@@ -105,20 +72,8 @@ class DealershipDomain {
   }
 
   dealershipGeneralModule11(digits) {
-    let control = 2;
-    let sumOfDigits = 0;
+    const sumOfDigits = utils.getSumOfNumbersModule11(digits);
     const numberReference = 11;
-
-    for (let i = digits.length - 1; i >= 0; i--) {
-      if (control < 9) {
-        sumOfDigits += digits[i] * control;
-        control++;
-      } else {
-        sumOfDigits += digits[i] * control;
-        control = 2;
-      }
-    }
-
     const remainderOfDivision = (sumOfDigits / numberReference)
       .toFixed(1)
       .toString()
@@ -140,7 +95,7 @@ class DealershipDomain {
     return remainingValue;
   }
 
-  getValue(digits) {
+  getSlipValue(digits) {
     const firstPartOfTheValue = digits.slice(5, 11).join('');
     const fsecondPartOfTheValue = digits.slice(12, 16).join('');
     const value = firstPartOfTheValue + fsecondPartOfTheValue;
@@ -164,14 +119,15 @@ class DealershipDomain {
       const fourthPositionCheckerDigit = this.dealershipModule10(
         [
           productIdentification,
-          ...segmentIdentification,
-          ...identificationOfActualValueOrReference,
-          ...firstBlock,
-          ...secondBlock,
-          ...thirdBlock,
-          ...fourthBlock,
+          segmentIdentification,
+          identificationOfActualValueOrReference,
+          firstBlock,
+          secondBlock,
+          thirdBlock,
+          fourthBlock,
         ].join(''),
       );
+
       return parseInt(generalCheckDigit, 10) === fourthPositionCheckerDigit;
     }
     if (
@@ -181,12 +137,12 @@ class DealershipDomain {
       const fourthPositionCheckerDigit = this.dealershipGeneralModule11(
         [
           productIdentification,
-          ...segmentIdentification,
-          ...identificationOfActualValueOrReference,
-          ...firstBlock,
-          ...secondBlock,
-          ...thirdBlock,
-          ...fourthBlock,
+          segmentIdentification,
+          identificationOfActualValueOrReference,
+          firstBlock,
+          secondBlock,
+          thirdBlock,
+          fourthBlock,
         ].join(''),
       );
       return parseInt(generalCheckDigit, 10) === fourthPositionCheckerDigit;
@@ -201,7 +157,7 @@ class DealershipDomain {
 
   dealership(digits) {
     const dealershipData = this.getDealershipData(digits);
-    const slipValue = this.getValue(digits);
+    const slipValue = this.getSlipValue(digits);
 
     const {
       productIdentification,
@@ -226,13 +182,13 @@ class DealershipDomain {
       return {
         barCode: [
           productIdentification,
-          ...segmentIdentification,
-          ...identificationOfActualValueOrReference,
-          ...generalCheckDigit,
-          ...firstBlock,
-          ...secondBlock,
-          ...thirdBlock,
-          ...fourthBlock,
+          segmentIdentification,
+          identificationOfActualValueOrReference,
+          generalCheckDigit,
+          firstBlock,
+          secondBlock,
+          thirdBlock,
+          fourthBlock,
         ].join(''),
         amount: slipValue,
         expirationDate: '',

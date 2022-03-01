@@ -9,11 +9,11 @@ class CheckDigits {
     return result;
   }
 
-  getSumOfNumbers(digits) {
+  getSumOfNumbersModule10(digits) {
     let control = true;
+    let sumOfDigits = 0;
     const multiplierNumberOne = 1;
     const multiplierNumberTwo = 2;
-    let sumOfDigits = 0;
 
     for (let i = digits.length - 1; i >= 0; i--) {
       if (control) {
@@ -30,6 +30,23 @@ class CheckDigits {
         control = true;
       }
     }
+    return sumOfDigits;
+  }
+
+  getSumOfNumbersModule11(digits) {
+    let control = 2;
+    let sumOfDigits = 0;
+
+    for (let i = digits.length - 1; i >= 0; i--) {
+      if (control < 9) {
+        sumOfDigits += digits[i] * control;
+        control++;
+      } else {
+        sumOfDigits += digits[i] * control;
+        control = 2;
+      }
+    }
+
     return sumOfDigits;
   }
 }

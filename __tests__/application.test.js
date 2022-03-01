@@ -30,7 +30,7 @@ describe('Application tests.', () => {
     expect(body).toEqual({
       details: {},
       error: 'BadRequestError',
-      message: 'Invalid line value entered',
+      message: 'Invalid line value entered, only numbers are accepted',
       statusCode: 400,
     });
   });

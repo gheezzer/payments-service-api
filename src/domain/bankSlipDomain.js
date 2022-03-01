@@ -41,8 +41,8 @@ class BankSlipDomain {
 
     const newFirstBlock = [
       recipientFinancialInstitutionCode,
-      ...currencyCode,
-      ...firstBlock,
+      currencyCode,
+      firstBlock,
     ].join('');
 
     const blocks = [newFirstBlock, secondBlock, thirdBlock];
@@ -50,8 +50,8 @@ class BankSlipDomain {
     const baseDecimal = 10;
 
     return blocks.map(block => {
-      const value = utils.getSumOfNumbers(block);
-      const dividedValue = value / numberReference;
+      const sumOfDigits = utils.getSumOfNumbersModule10(block);
+      const dividedValue = sumOfDigits / numberReference;
 
       const remainderOfDivision = parseInt(
         dividedValue.toString().split('.')[1],
@@ -77,17 +77,18 @@ class BankSlipDomain {
   }) {
     const barCodeDigits = [
       recipientFinancialInstitutionCode,
-      ...currencyCode,
-      ...expirationFactor,
-      ...paymentSlipValue,
-      ...firstBlock,
-      ...secondBlock,
-      ...thirdBlock,
+      currencyCode,
+      expirationFactor,
+      paymentSlipValue,
+      firstBlock,
+      secondBlock,
+      thirdBlock,
     ].join('');
 
     let control = 2;
     let sumOfDigits = 0;
-    const numberReferenceForCalculation = 11;
+    const numberReference = 11;
+
     for (let i = barCodeDigits.length - 1; i >= 0; i--) {
       if (control < 9) {
         sumOfDigits += barCodeDigits[i] * control;
@@ -97,23 +98,23 @@ class BankSlipDomain {
         control = 2;
       }
     }
-    const remainingValueWithCalculation = (
-      sumOfDigits / numberReferenceForCalculation
-    )
+
+    const remainingValueWithCalculation = (sumOfDigits / numberReference)
       .toFixed(1)
       .toString()
       .split('.')[1];
+
     const calculationRoundedUpAfterPoint =
       parseInt(remainingValueWithCalculation, 10) + 1;
 
-    let verifyingDigit =
-      numberReferenceForCalculation - calculationRoundedUpAfterPoint;
+    let verifyingDigit = numberReference - calculationRoundedUpAfterPoint;
 
-    const exceptions = [0, 10, 11];
+    const rule = [0, 10, 11];
 
-    if (exceptions.includes(verifyingDigit)) {
+    if (rule.includes(verifyingDigit)) {
       verifyingDigit = 1;
     }
+
     return parseInt(barcodeCheckeDigit, 10) === verifyingDigit;
   }
 
@@ -128,6 +129,7 @@ class BankSlipDomain {
 
   bankSlip(digits) {
     const bankSlipData = this.getBankSlipData(digits);
+
     const {
       recipientFinancialInstitutionCode,
       currencyCode,
@@ -142,28 +144,30 @@ class BankSlipDomain {
       paymentSlipValue,
     } = bankSlipData;
 
-    const checkedDigits = this.bankSlipModule10(bankSlipData);
-    const digitsTocheck = [
+    const module10DigitsChecked = this.bankSlipModule10(bankSlipData);
+    const expiryData = this.getExpiryData(expirationFactor);
+
+    const digitsToCheck = [
       digitCheckerFieldOne,
       digitCheckerFieldTwo,
       digitCheckerFieldThree,
     ];
-    const expiryData = this.getExpiryData(expirationFactor);
+
     if (
-      parseInt(digitsTocheck.join(''), 10) ===
-        parseInt(checkedDigits.join(''), 10) &&
+      parseInt(digitsToCheck.join(''), 10) ===
+        parseInt(module10DigitsChecked.join(''), 10) &&
       this.bankSlipModule11(bankSlipData)
     ) {
       return {
         barCode: [
           recipientFinancialInstitutionCode,
-          ...currencyCode,
-          ...barcodeCheckeDigit,
-          ...expirationFactor,
-          ...paymentSlipValue,
-          ...firstBlock,
-          ...secondBlock,
-          ...thirdBlock,
+          currencyCode,
+          barcodeCheckeDigit,
+          expirationFactor,
+          paymentSlipValue,
+          firstBlock,
+          secondBlock,
+          thirdBlock,
         ].join(''),
         amount: (paymentSlipValue / 100).toFixed(2),
         expirationDate: expiryData,
