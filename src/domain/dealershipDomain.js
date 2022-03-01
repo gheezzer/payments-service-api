@@ -32,6 +32,114 @@ class DealershipDomain {
     };
   }
 
+  dealershipModule10(digits) {
+    let control = true;
+    const multiplierNumberOne = 1;
+    const multiplierNumberTwo = 2;
+    let sumOfDigits = 0;
+    const numberReference = 10;
+    const baseDecimal = 10;
+
+    for (let i = digits.length - 1; i >= 0; i--) {
+      if (control) {
+        sumOfDigits += utils.getMultipliedNumbers(
+          digits[i],
+          multiplierNumberTwo,
+        );
+        control = false;
+      } else {
+        sumOfDigits += utils.getMultipliedNumbers(
+          digits[i],
+          multiplierNumberOne,
+        );
+        control = true;
+      }
+    }
+
+    const divisionValue = sumOfDigits / numberReference;
+
+    const remainderOfDivision = parseInt(
+      divisionValue.toString().split('.')[1],
+      baseDecimal,
+    );
+
+    if (remainderOfDivision !== 0) {
+      return numberReference - remainderOfDivision;
+    }
+    return remainderOfDivision;
+  }
+
+  dealershipModule11(digits) {
+    let control = 2;
+    let sumOfDigits = 0;
+    const numberReference = 11;
+
+    for (let i = digits.length - 1; i >= 0; i--) {
+      if (control < 9) {
+        sumOfDigits += digits[i] * control;
+        control++;
+      } else {
+        sumOfDigits += digits[i] * control;
+        control = 2;
+      }
+    }
+
+    const remainingValue = (sumOfDigits / numberReference)
+      .toFixed(1)
+      .toString()
+      .split('.')[1];
+
+    let verifyingDigit = remainingValue - numberReference;
+
+    const ruleOne = [0, 1];
+
+    if (ruleOne.includes(verifyingDigit)) {
+      verifyingDigit = 0;
+    }
+
+    const ruleOTwo = [10];
+
+    if (ruleOTwo.includes(verifyingDigit)) {
+      verifyingDigit = 1;
+    }
+  }
+
+  dealershipGeneralModule11(digits) {
+    let control = 2;
+    let sumOfDigits = 0;
+    const numberReference = 11;
+
+    for (let i = digits.length - 1; i >= 0; i--) {
+      if (control < 9) {
+        sumOfDigits += digits[i] * control;
+        control++;
+      } else {
+        sumOfDigits += digits[i] * control;
+        control = 2;
+      }
+    }
+
+    const remainderOfDivision = (sumOfDigits / numberReference)
+      .toFixed(1)
+      .toString()
+      .split('.')[1];
+
+    let remainingValue = parseInt(remainderOfDivision, 10);
+
+    const ruleOne = [0, 1];
+
+    if (ruleOne.includes(remainingValue)) {
+      remainingValue = 0;
+    }
+
+    const ruleOTwo = [10];
+
+    if (ruleOTwo.includes(remainingValue)) {
+      remainingValue = 1;
+    }
+    return remainingValue;
+  }
+
   getValue(digits) {
     const firstPartOfTheValue = digits.slice(5, 11).join('');
     const fsecondPartOfTheValue = digits.slice(12, 16).join('');
@@ -53,7 +161,7 @@ class DealershipDomain {
       parseInt(identificationOfActualValueOrReference, 10) === 6 ||
       parseInt(identificationOfActualValueOrReference, 10) === 7
     ) {
-      const fourthPositionCheckerDigit = utils.module10(
+      const fourthPositionCheckerDigit = this.dealershipModule10(
         [
           productIdentification,
           ...segmentIdentification,
@@ -70,7 +178,7 @@ class DealershipDomain {
       parseInt(identificationOfActualValueOrReference, 10) === 8 ||
       parseInt(identificationOfActualValueOrReference, 10) === 9
     ) {
-      const fourthPositionCheckerDigit = utils.generalModule11(
+      const fourthPositionCheckerDigit = this.dealershipGeneralModule11(
         [
           productIdentification,
           ...segmentIdentification,
@@ -87,7 +195,7 @@ class DealershipDomain {
   }
 
   validateTheBlocks(block, verifyingDigit) {
-    const checkerDigit = utils.module10(block);
+    const checkerDigit = this.dealershipModule10(block);
     return parseInt(verifyingDigit, 10) === checkerDigit;
   }
 

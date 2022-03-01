@@ -1,14 +1,15 @@
+import utils from '../utils/utils';
 import BadRequestError from '../errors/bad-request';
 
 class BankSlipDomain {
   getBankSlipData(digits) {
     const recipientFinancialInstitutionCode = digits.slice(0, 3).join('');
     const currencyCode = digits.slice(3, 4).join('');
-    const firstBlockOfBarcode = digits.slice(4, 9).join('');
+    const firstBlock = digits.slice(4, 9).join('');
     const digitCheckerFieldOne = digits.slice(9, 10).join('');
-    const secondBlockOfBarcode = digits.slice(10, 20).join('');
+    const secondBlock = digits.slice(10, 20).join('');
     const digitCheckerFieldTwo = digits.slice(20, 21).join('');
-    const thirdBlockOfBarcode = digits.slice(21, 31).join('');
+    const thirdBlock = digits.slice(21, 31).join('');
     const digitCheckerFieldThree = digits.slice(31, 32).join('');
     const barcodeCheckeDigit = digits.slice(32, 33).join('');
     const expirationFactor = digits.slice(33, 37).join('');
@@ -17,11 +18,11 @@ class BankSlipDomain {
     return {
       recipientFinancialInstitutionCode,
       currencyCode,
-      firstBlockOfBarcode,
+      firstBlock,
       digitCheckerFieldOne,
-      secondBlockOfBarcode,
+      secondBlock,
       digitCheckerFieldTwo,
-      thirdBlockOfBarcode,
+      thirdBlock,
       digitCheckerFieldThree,
       barcodeCheckeDigit,
       expirationFactor,
@@ -29,103 +30,49 @@ class BankSlipDomain {
     };
   }
 
-  multipliedNumbers(number, multiplierNumber) {
-    let result = number * multiplierNumber;
-    if (result > 9) {
-      const arrayOfResult = result.toString().split('');
-      result = parseInt(arrayOfResult[0], 10) + parseInt(arrayOfResult[1], 10);
-      return result;
-    }
-    return result;
-  }
+  bankSlipModule10(digits) {
+    const {
+      recipientFinancialInstitutionCode,
+      currencyCode,
+      firstBlock,
+      secondBlock,
+      thirdBlock,
+    } = digits;
 
-  getMultipliedNumbers(barCodeBlocks) {
-    let control = true;
-    const multiplierNumberOne = 1;
-    const multiplierNumberTwo = 2;
-    return barCodeBlocks.map(block => {
-      return block.split('').map(number => {
-        if (control) {
-          control = false;
-          return this.multipliedNumbers(number, multiplierNumberTwo);
-        }
-        control = true;
-        return this.multipliedNumbers(number, multiplierNumberOne);
-      });
-    });
-  }
-
-  getBarcodeCheckDigits(multipliedNumbers) {
-    const arrOfValues = multipliedNumbers.map(block => {
-      const sum = block.reduce(
-        (accumulator, currentValue) => accumulator + currentValue,
-      );
-      return sum / 10;
-    });
-
-    return arrOfValues.map(value => {
-      const floatingRemainderOfDivision = parseInt(
-        value.toString().split('.')[1],
-        10,
-      );
-      const immediatelyAfterTen = Math.round(value) * 10;
-
-      const remainderOfSubtraction =
-        immediatelyAfterTen - floatingRemainderOfDivision / 10;
-      const result = parseInt(
-        remainderOfSubtraction.toString().split('.')[1],
-        10,
-      );
-      return result;
-    });
-  }
-
-  validateTypeAbleLineDigits({
-    recipientFinancialInstitutionCode,
-    currencyCode,
-    firstBlockOfBarcode,
-    digitCheckerFieldOne,
-    secondBlockOfBarcode,
-    digitCheckerFieldTwo,
-    thirdBlockOfBarcode,
-    digitCheckerFieldThree,
-  }) {
-    const firstFieldOfTypeableLine = [
+    const newFirstBlock = [
       recipientFinancialInstitutionCode,
       ...currencyCode,
-      ...firstBlockOfBarcode,
+      ...firstBlock,
     ].join('');
 
-    const multipliedNumbers = this.getMultipliedNumbers([
-      firstFieldOfTypeableLine,
-      secondBlockOfBarcode,
-      thirdBlockOfBarcode,
-    ]);
+    const blocks = [newFirstBlock, secondBlock, thirdBlock];
+    const numberReference = 10;
+    const baseDecimal = 10;
 
-    const checkDigits = this.getBarcodeCheckDigits(multipliedNumbers);
+    return blocks.map(block => {
+      const value = utils.getSumOfNumbers(block);
+      const dividedValue = value / numberReference;
 
-    const allDigitCheckerField = parseInt(
-      [
-        digitCheckerFieldOne,
-        ...digitCheckerFieldTwo,
-        ...digitCheckerFieldThree,
-      ].join(''),
-      10,
-    );
+      const remainderOfDivision = parseInt(
+        dividedValue.toString().split('.')[1],
+        baseDecimal,
+      );
 
-    const digitsChecked = parseInt(checkDigits.join(''), 10);
-
-    return allDigitCheckerField === digitsChecked;
+      if (remainderOfDivision !== 0) {
+        return numberReference - remainderOfDivision;
+      }
+      return remainderOfDivision;
+    });
   }
 
-  validateBarcodeDigit({
+  bankSlipModule11({
     recipientFinancialInstitutionCode,
     currencyCode,
     expirationFactor,
     paymentSlipValue,
-    firstBlockOfBarcode,
-    secondBlockOfBarcode,
-    thirdBlockOfBarcode,
+    firstBlock,
+    secondBlock,
+    thirdBlock,
     barcodeCheckeDigit,
   }) {
     const barCodeDigits = [
@@ -133,9 +80,9 @@ class BankSlipDomain {
       ...currencyCode,
       ...expirationFactor,
       ...paymentSlipValue,
-      ...firstBlockOfBarcode,
-      ...secondBlockOfBarcode,
-      ...thirdBlockOfBarcode,
+      ...firstBlock,
+      ...secondBlock,
+      ...thirdBlock,
     ].join('');
 
     let control = 2;
@@ -170,7 +117,7 @@ class BankSlipDomain {
     return parseInt(barcodeCheckeDigit, 10) === verifyingDigit;
   }
 
-  getExpiryData({ expirationFactor }) {
+  getExpiryData(expirationFactor) {
     const { DATABASE } = process.env;
     const date = new Date(DATABASE);
     const day = date.getDate();
@@ -181,23 +128,32 @@ class BankSlipDomain {
 
   bankSlip(digits) {
     const bankSlipData = this.getBankSlipData(digits);
+    const {
+      recipientFinancialInstitutionCode,
+      currencyCode,
+      firstBlock,
+      digitCheckerFieldOne,
+      secondBlock,
+      digitCheckerFieldTwo,
+      thirdBlock,
+      digitCheckerFieldThree,
+      barcodeCheckeDigit,
+      expirationFactor,
+      paymentSlipValue,
+    } = bankSlipData;
 
+    const checkedDigits = this.bankSlipModule10(bankSlipData);
+    const digitsTocheck = [
+      digitCheckerFieldOne,
+      digitCheckerFieldTwo,
+      digitCheckerFieldThree,
+    ];
+    const expiryData = this.getExpiryData(expirationFactor);
     if (
-      this.validateTypeAbleLineDigits(bankSlipData) &&
-      this.validateBarcodeDigit(bankSlipData)
+      parseInt(digitsTocheck.join(''), 10) ===
+        parseInt(checkedDigits.join(''), 10) &&
+      this.bankSlipModule11(bankSlipData)
     ) {
-      const {
-        recipientFinancialInstitutionCode,
-        currencyCode,
-        firstBlockOfBarcode,
-        secondBlockOfBarcode,
-        thirdBlockOfBarcode,
-        barcodeCheckeDigit,
-        expirationFactor,
-        paymentSlipValue,
-      } = bankSlipData;
-      const expiryData = this.getExpiryData(bankSlipData);
-
       return {
         barCode: [
           recipientFinancialInstitutionCode,
@@ -205,14 +161,11 @@ class BankSlipDomain {
           ...barcodeCheckeDigit,
           ...expirationFactor,
           ...paymentSlipValue,
-          ...firstBlockOfBarcode,
-          ...secondBlockOfBarcode,
-          ...thirdBlockOfBarcode,
+          ...firstBlock,
+          ...secondBlock,
+          ...thirdBlock,
         ].join(''),
-        amount: (paymentSlipValue * 100).toLocaleString({
-          style: 'currency',
-          currency: 'BRL',
-        }),
+        amount: (paymentSlipValue / 100).toFixed(2),
         expirationDate: expiryData,
       };
     }

@@ -31,7 +31,7 @@ describe('Application tests.', () => {
 
     expect(body).toEqual({
       barCode: '00193373700000001000500940144816060680935031',
-      amount: '10,000',
+      amount: '1.00',
       expirationDate: '31/12/2007',
     });
   });
