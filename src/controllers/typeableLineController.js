@@ -1,21 +1,24 @@
 import BadRequestError from '../errors/bad-request';
-import typeableLineDomain from '../domain/typeableLineDomain';
+import BankSlipDomain from '../domain/bankSlipDomain';
+import DealershipDomain from '../domain/dealershipDomain';
 
 export default class TypeableLineController {
-  async getBankSlipData(req, res, next) {
+  async getBankSlipAndDealershipData(req, res, next) {
     try {
-      const numberOfBankSlipDigits = 47;
       const { digits } = req.params;
+      const sizeOfBankSlipDigits = 47;
+      const sizeOfDealershipDigits = 48;
       const regex = /\d/g;
-      const arrayOfTypeableLineDigits = digits.match(regex);
-      const numberOfTypeableLineDigits = arrayOfTypeableLineDigits.length;
+      const typeableLineDigits = digits.match(regex);
+      const sizeOfTypeableLineDigits = typeableLineDigits.length;
 
-      if (
-        numberOfTypeableLineDigits === numberOfBankSlipDigits ||
-        numberOfTypeableLineDigits === numberOfBankSlipDigits + 1
-      ) {
-        const slipData = typeableLineDomain.BankSlip(arrayOfTypeableLineDigits);
+      if (sizeOfTypeableLineDigits === sizeOfBankSlipDigits) {
+        const slipData = BankSlipDomain.bankSlip(typeableLineDigits);
         res.send(slipData);
+        next();
+      } else if (sizeOfTypeableLineDigits === sizeOfDealershipDigits) {
+        const dealershipData = DealershipDomain.dealership(typeableLineDigits);
+        res.send(dealershipData);
         next();
       } else {
         throw new BadRequestError(

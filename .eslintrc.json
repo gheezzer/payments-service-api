@@ -5,7 +5,16 @@
   },
   "extends": ["airbnb-base", "plugin:prettier/recommended"],
   "plugins": ["prettier", "editorconfig", "jest"],
-  "globals": {},
+  "globals": {
+    "describe": "readonly",
+    "it": "readonly",
+    "expect": "readonly",
+    "beforeAll": "readonly",
+    "afterAll": "readonly",
+    "beforeEach": "readonly",
+    "afterEach": "readonly",
+    "jest": "readonly"
+  },
   "parserOptions": {
     "ecmaVersion": 2022,
     "sourceType": "module"
