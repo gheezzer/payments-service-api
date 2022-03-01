@@ -1,18 +1,18 @@
 import BadRequestError from '../errors/bad-request';
 
-class TypeableLineDomain {
-  getBankSlipData(typeableLine) {
-    const recipientFinancialInstitutionCode = typeableLine.slice(0, 3).join('');
-    const currencyCode = typeableLine.slice(3, 4).join('');
-    const firstBlockOfBarcode = typeableLine.slice(4, 9).join('');
-    const digitCheckerFieldOne = typeableLine.slice(9, 10).join('');
-    const secondBlockOfBarcode = typeableLine.slice(10, 20).join('');
-    const digitCheckerFieldTwo = typeableLine.slice(20, 21).join('');
-    const thirdBlockOfBarcode = typeableLine.slice(21, 31).join('');
-    const digitCheckerFieldThree = typeableLine.slice(31, 32).join('');
-    const barcodeCheckeDigit = typeableLine.slice(32, 33).join('');
-    const expirationFactor = typeableLine.slice(33, 37).join('');
-    const paymentSlipValue = typeableLine.slice(37).join('');
+class BankSlipDomain {
+  getBankSlipData(digits) {
+    const recipientFinancialInstitutionCode = digits.slice(0, 3).join('');
+    const currencyCode = digits.slice(3, 4).join('');
+    const firstBlockOfBarcode = digits.slice(4, 9).join('');
+    const digitCheckerFieldOne = digits.slice(9, 10).join('');
+    const secondBlockOfBarcode = digits.slice(10, 20).join('');
+    const digitCheckerFieldTwo = digits.slice(20, 21).join('');
+    const thirdBlockOfBarcode = digits.slice(21, 31).join('');
+    const digitCheckerFieldThree = digits.slice(31, 32).join('');
+    const barcodeCheckeDigit = digits.slice(32, 33).join('');
+    const expirationFactor = digits.slice(33, 37).join('');
+    const paymentSlipValue = digits.slice(37).join('');
 
     return {
       recipientFinancialInstitutionCode,
@@ -179,8 +179,8 @@ class TypeableLineDomain {
     return formattedDate;
   }
 
-  BankSlip(typeableLine) {
-    const bankSlipData = this.getBankSlipData(typeableLine);
+  bankSlip(digits) {
+    const bankSlipData = this.getBankSlipData(digits);
 
     if (
       this.validateTypeAbleLineDigits(bankSlipData) &&
@@ -223,4 +223,4 @@ class TypeableLineDomain {
   }
 }
 
-export default new TypeableLineDomain();
+export default new BankSlipDomain();
