@@ -34,7 +34,7 @@ With the local server running, just access:
 
 Example of a bank slip request:
 
-`GET/ http://localhost:8080/boleto/00190500954014481606906809350314337370000000100`
+`GET/ http://localhost:3000/v1/boleto/00190500954014481606906809350314337370000000100`
 
 Response:
 
@@ -42,7 +42,7 @@ status 200
 
 `{ "barCode": "00193373700000001000500940144816060680935031", "amount": "1.00", "expirationDate": "31/12/2007" }`
 
-[GET - Slip Bank](http://localhost:3000/boleto/00190500954014481606906809350314337370000000100)
+[GET - Slip Bank](http://localhost:3000/v1/boleto/00190500954014481606906809350314337370000000100)
 
 ---
 
