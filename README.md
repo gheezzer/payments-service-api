@@ -6,11 +6,15 @@ This API aims to receive a typeable line of bank slip or payment from concession
 
 ### Run
 
-To start the project run:
+**To start the project run:**
 
 npm install
 
 npm start
+
+**To start the tests run:**
+
+npm run test
 
 ---
 
@@ -20,6 +24,14 @@ With the local server running, just access:
 
 [Localhost status check](http://localhost:3000/v1)
 
+`GET/ http://localhost:3000/v1`
+
+Response:
+
+status 200
+
+`{ "endpoints": "/v1", "status": "Ok" }`
+
 ---
 
 ### View local API documentation
@@ -27,6 +39,8 @@ With the local server running, just access:
 With the local server running, just access:
 
 [Localhost DOCS - Swagger](http://localhost:3000/swagger/)
+
+`GET/ http://localhost:3000/swagger`
 
 ---
 
