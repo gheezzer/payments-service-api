@@ -150,7 +150,7 @@ class DealershipDomain {
     return false;
   }
 
-  validateTheBlocks(block, verifyingDigit) {
+  validateBlockCheckDigit(block, verifyingDigit) {
     const checkerDigit = this.dealershipModule10(block);
     return parseInt(verifyingDigit, 10) === checkerDigit;
   }
@@ -165,6 +165,7 @@ class DealershipDomain {
       identificationOfActualValueOrReference,
       generalCheckDigit,
       firstBlock,
+      checkDigitOfFirst,
       secondBlock,
       checkDigitOfSecond,
       thirdBlock,
@@ -174,10 +175,20 @@ class DealershipDomain {
     } = dealershipData;
 
     if (
-      (this.valdateFourthPositionCheckerDigit(dealershipData),
-      this.validateTheBlocks(secondBlock, checkDigitOfSecond),
-      this.validateTheBlocks(thirdBlock, checkDigitOfThird),
-      this.validateTheBlocks(fourthBlock, checkDigitOfFourth))
+      this.valdateFourthPositionCheckerDigit(dealershipData) &&
+      this.validateBlockCheckDigit(
+        [
+          productIdentification,
+          segmentIdentification,
+          identificationOfActualValueOrReference,
+          generalCheckDigit,
+          firstBlock,
+        ].join(''),
+        checkDigitOfFirst,
+      ) &&
+      this.validateBlockCheckDigit(secondBlock, checkDigitOfSecond) &&
+      this.validateBlockCheckDigit(thirdBlock, checkDigitOfThird) &&
+      this.validateBlockCheckDigit(fourthBlock, checkDigitOfFourth)
     ) {
       return {
         barCode: [
